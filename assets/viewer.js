@@ -37,7 +37,7 @@ async function load(){
     cancelAnimationFrame(resizeFrame);
     graph.style.height=plotHeight+'px';
     let plotWidth=Math.max(1,Math.floor(graph.clientWidth));
-    const layout={autosize:false,width:plotWidth,height:plotHeight,margin:{l:90,r:35,t:65,b:65,autoexpand:false},showlegend:false,hovermode:'x unified',dragmode:'zoom',font:{family:'Arial, sans-serif',size:13},annotations:[],paper_bgcolor:'white',plot_bgcolor:'white'};
+    const layout={autosize:false,width:plotWidth,height:plotHeight,margin:{l:120,r:35,t:65,b:65,autoexpand:false},showlegend:false,hovermode:'x unified',dragmode:'zoom',font:{family:'Arial, sans-serif',size:13},annotations:[],paper_bgcolor:'white',plot_bgcolor:'white'};
     const timeFormats=[
       {dtickrange:[null,1000],value:'%H:%M:%S.%L<br>%d %b %Y'},
       {dtickrange:[1000,60000],value:'%H:%M:%S<br>%d %b %Y'},
@@ -47,7 +47,7 @@ async function load(){
     ];
     const traces=columns.map((c,i)=>{
       const axis=i?String(i+1):'';const ytop=1-i*(panel+gap);
-      layout['yaxis'+axis]={anchor:'x'+axis,domain:[ytop-panel,ytop],title:{text:units[c.name]||c.name},automargin:false,nticks:5,tickformat:'.8~g',gridcolor:'#e5ecf2',zerolinecolor:'#cbd5e1'};
+      layout['yaxis'+axis]={anchor:'x'+axis,domain:[ytop-panel,ytop],title:{text:units[c.name]||c.name},automargin:false,nticks:5,tickformat:'.12~g',gridcolor:'#e5ecf2',zerolinecolor:'#cbd5e1'};
       layout['xaxis'+axis]={anchor:'y'+axis,type:'date',matches:i?'x':undefined,automargin:false,nticks:5,showticklabels:i===n-1,showspikes:true,spikemode:'across',tickformatstops:timeFormats,gridcolor:'#e5ecf2',title:i===n-1?{text:'Fecha y hora registradas'}:undefined};
       layout.annotations.push({xref:'paper',yref:'paper',x:.5,y:ytop,xanchor:'center',yanchor:'bottom',showarrow:false,text:`${labels[c.name]||c.name} · ${c.name}${units[c.name]?' ('+units[c.name]+')':''}`,font:{size:14}});
       return {type:'scatter',mode:'lines',x:dates,y:c.values,xaxis:'x'+axis,yaxis:'y'+axis,name:c.name,connectgaps:false,line:{color:colors[i%colors.length],width:1.3},hovertemplate:`%{x|%Y-%m-%d %H:%M}<br>${c.name}: %{y:.6g} ${units[c.name]||''}<extra></extra>`};
