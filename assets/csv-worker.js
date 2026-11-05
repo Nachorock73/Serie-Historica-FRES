@@ -20,8 +20,10 @@ export function parseCsv(text) {
   let previous='';
   for(const [i,r] of rows.entries()) {
     if(r.length!==headers.length)throw new Error(`Fila ${i+2}: número incorrecto de columnas.`);
-    const stamp=r[0].trim().replace(' ','T');
+    const stamp=r[0].trim().replace(' ','T').replace(/(\.\d*?[1-9])0+$|\.0+$/, '$1');
     if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$/.test(stamp))throw new Error(`Fila ${i+2}: fecha inválida.`);
+    const calendar=new Date(stamp+'Z');
+    if(!Number.isFinite(calendar.getTime())||calendar.toISOString().slice(0,19)!==stamp.slice(0,19))throw new Error(`Fila ${i+2}: fecha inexistente.`);
     if(previous && stamp<=previous)throw new Error('Las fechas deben ser únicas y estar ordenadas.');
     previous=stamp; dates.push(stamp);
     for(let c=1;c<headers.length;c++) {

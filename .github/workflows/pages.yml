@@ -19,6 +19,20 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: actions/configure-pages@v5
+      - name: Validar los CSV con el mismo lector de los gráficos
+        shell: bash
+        run: |
+          node --check assets/viewer.js
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const source=fs.readFileSync('assets/csv-worker.js','utf8');
+          const {parseCsv}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+          for(const code of ['A00','A01','A02','A04','A05','J04','P01']) {
+            const data=parseCsv(fs.readFileSync(`merged/${code}_merged.csv`,'utf8'));
+            if(!data.columns.length)throw new Error(`${code}: no hay variables con datos.`);
+            console.log(`${code}: ${data.dates.length} registros, ${data.columns.length} variables.`);
+          }
+          JS
       - name: Calcular vista previa desde los CSV
         shell: bash
         run: |
@@ -35,12 +49,15 @@ jobs:
               available = set()
               first = last = None
               with (root / 'merged' / f'{code}_merged.csv').open(encoding='utf-8-sig', newline='') as handle:
-                  for row in csv.DictReader(handle):
-                      stamp = datetime.fromisoformat(row['Date'])
+                  reader = csv.DictReader(handle)
+                  reader.fieldnames = [name.strip() for name in reader.fieldnames]
+                  for row in reader:
+                      stamp = datetime.fromisoformat(row['Date'].strip())
                       first = min(first, stamp) if first else stamp
                       last = max(last, stamp) if last else stamp
                       count += 1
                       for name, value in row.items():
+                          value = (value or '').strip()
                           if name == 'Date' or not value or value.lower() in ('na', 'nan', 'null'):
                               continue
                           if math.isfinite(float(value)):
