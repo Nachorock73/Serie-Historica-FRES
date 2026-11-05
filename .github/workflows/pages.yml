@@ -30,6 +30,11 @@ jobs:
           for(const code of ['A00','A01','A02','A04','A05','J04','P01']) {
             const data=parseCsv(fs.readFileSync(`merged/${code}_merged.csv`,'utf8'));
             if(!data.columns.length)throw new Error(`${code}: no hay variables con datos.`);
+            const forbidden={A01:['condfr'],A04:['temp']}[code]||[];
+            for(const column of data.columns) {
+              const key=column.name.toLowerCase().replace(/[^a-z0-9]/g,'');
+              if(forbidden.includes(key))throw new Error(`${code}: retirar la columna ${column.name} del consolidado antes de publicar.`);
+            }
             console.log(`${code}: ${data.dates.length} registros, ${data.columns.length} variables.`);
           }
           JS

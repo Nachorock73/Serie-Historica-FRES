@@ -47,6 +47,10 @@ Dejar las mediciones ausentes vacías; también se reconocen `NA`, `NaN` y `null
 
 Cada archivo debe contener al menos una observación numérica. Las variables completamente vacías no se grafican ni se cuentan como disponibles. **Registros** significa filas del CSV, incluidos los intervalos que no tienen mediciones; no es el número de celdas válidas.
 
+Las series de A01 excluyen `Cond_FR` y las de A04 excluyen la columna genérica `Temp`. Estas columnas se retiraron de sus fuentes y el notebook de consolidación impide que reaparezcan. La publicación también rechaza esas variables si vuelven a subirse con datos. `Cond_FR` de A04 y las temperaturas específicas de cada sensor se conservan.
+
+En A04 se corrigieron también `Temp_DO` y `Temp_cond` del validado del 19 de enero de 2026: las descargas originales estaban en °F y se convirtieron a °C antes de reconstruir la serie. La temperatura de nivel ya estaba en °C. Esta conversión se hizo en la fuente validada, una sola vez.
+
 Agregar una estación nueva requiere añadir su página y actualizar la configuración del visor y del despliegue. Para actualizar las siete estaciones actuales, basta con reemplazar sus CSV.
 
 ## Si una actualización falla
