@@ -19,6 +19,7 @@ function range(start,end){
   for(const key of Object.keys(graph.layout))if(/^xaxis\d*$/.test(key)){
     change[key+'.autorange']=!start;if(start)change[key+'.range']=[start,end];
   }
+  if(!start)for(const key of Object.keys(graph.layout))if(/^yaxis\d*$/.test(key))change[key+'.autorange']=true;
   Plotly.relayout(graph,change);
 }
 async function load(){
