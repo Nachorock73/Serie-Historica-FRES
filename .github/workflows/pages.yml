@@ -1,0 +1,72 @@
+name: Publicar series FRES
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/configure-pages@v5
+      - name: Calcular vista previa desde los CSV
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import csv, math, re, shutil
+          from datetime import datetime
+
+          root = Path('.')
+          page = (root / 'index.html').read_text(encoding='utf-8')
+          def card(match):
+              code, heading = match.group(1), match.group(2)
+              count = 0
+              available = set()
+              first = last = None
+              with (root / 'merged' / f'{code}_merged.csv').open(encoding='utf-8-sig', newline='') as handle:
+                  for row in csv.DictReader(handle):
+                      stamp = datetime.fromisoformat(row['Date'])
+                      first = min(first, stamp) if first else stamp
+                      last = max(last, stamp) if last else stamp
+                      count += 1
+                      for name, value in row.items():
+                          if name == 'Date' or not value or value.lower() in ('na', 'nan', 'null'):
+                              continue
+                          if math.isfinite(float(value)):
+                              available.add(name)
+              if not count:
+                  raise ValueError(f'{code}: CSV sin registros')
+              records = f'{count:,}'.replace(',', '.')
+              period = f'{first:%d/%m/%Y} — {last:%d/%m/%Y}'
+              details = f'<div class="card-details"><p class="period">{period}</p><p class="counts"><strong>{len(available)}</strong> variables · <strong>{records}</strong> registros</p></div>'
+              return f'<a class="card" href="{code}.html"><h2>{heading}</h2>{details}<span>Abrir gráfico</span></a>'
+          pattern = r'<a class="card" href="([A-Z][0-9]{2})\.html"><h2>(.*?)</h2>.*?</a>'
+          page, updated = re.subn(pattern, card, page, flags=re.S)
+          if updated != 7:
+              raise ValueError(f'Se esperaban siete tarjetas; encontradas: {updated}')
+          (root / 'index.html').write_text(page, encoding='utf-8')
+          output = root / '_site'
+          output.mkdir(exist_ok=True)
+          for file in root.glob('*.html'):
+              shutil.copyfile(file, output / file.name)
+          for folder in ('assets', 'merged'):
+              shutil.copytree(root / folder, output / folder, dirs_exist_ok=True)
+          (output / '.nojekyll').touch()
+          print('Siete tarjetas actualizadas desde CSV.')
+          PY
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
