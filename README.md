@@ -53,6 +53,8 @@ Las series de A01 excluyen `Cond_FR` y las de A04 excluyen la columna genérica 
 
 En A04 se corrigieron también `Temp_DO` y `Temp_cond` del validado del 19 de enero de 2026: las descargas originales estaban en °F y se convirtieron a °C antes de reconstruir la serie. La temperatura de nivel ya estaba en °C. Esta conversión se hizo en la fuente validada, una sola vez.
 
+En A02, el validado del 19 de enero de 2026 contenía `Lvl` en psi y `Temp_Lvl` en °F. Se corrigieron a kPa y °C las 1.338 muestras comprendidas entre el 5 de enero a las 13:00 y el 19 de enero a las 11:15. Las columnas no estaban intercambiadas: las unidades se comprobaron en la descarga original `Level_02.csv`. La conversión se aplicó una sola vez en el validado, conservando las demás variables y los vacíos.
+
 Agregar una estación nueva requiere añadir su página y actualizar la configuración del visor y del despliegue. Para actualizar las siete estaciones actuales, basta con reemplazar sus CSV.
 
 ## Si una actualización falla
