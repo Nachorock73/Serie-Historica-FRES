@@ -18,6 +18,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - uses: actions/configure-pages@v5
       - name: Validar los CSV con el mismo lector de los gráficos
         shell: bash
@@ -43,13 +45,20 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import csv, math, re, shutil
+          import csv, math, re, shutil, json, subprocess
           from datetime import datetime
 
           root = Path('.')
           page = (root / 'index.html').read_text(encoding='utf-8')
+          updates = {}
           def card(match):
               code, heading = match.group(1), match.group(2)
+              csv_path = f'merged/{code}_merged.csv'
+              updated_at = subprocess.check_output(['git','log','-1','--format=%cI','--',csv_path],text=True).strip()
+              commit = subprocess.check_output(['git','log','-1','--format=%H','--',csv_path],text=True).strip()
+              if not updated_at:
+                  raise ValueError(f'{code}: no se encontró el historial del CSV')
+              updates[code] = {'updated_at': updated_at, 'commit': commit}
               count = 0
               available = set()
               first = last = None
@@ -84,6 +93,7 @@ jobs:
               shutil.copyfile(file, output / file.name)
           for folder in ('assets', 'merged'):
               shutil.copytree(root / folder, output / folder, dirs_exist_ok=True)
+          (output / 'assets/updates.json').write_text(json.dumps(updates,ensure_ascii=False,indent=2),encoding='utf-8')
           (output / '.nojekyll').touch()
           print('Siete tarjetas actualizadas desde CSV.')
           PY

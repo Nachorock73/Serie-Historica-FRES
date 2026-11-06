@@ -8,6 +8,25 @@ const colors=['#2563eb','#e76f24','#168267','#9333ea','#c03158','#477a9e','#a477
 let bounds;
 let sizeObserver;
 let resizeFrame;
+async function showLastUpdate(){
+  const target=document.getElementById('updated-at');
+  if(!target)return;
+  try{
+    const response=await fetch(new URL('./updates.json',import.meta.url),{cache:'no-store'});
+    if(!response.ok)throw new Error('Sin fecha disponible');
+    const metadata=await response.json();
+    const value=metadata[code]?.updated_at;
+    const date=new Date(value);
+    if(!value||!Number.isFinite(date.getTime()))throw new Error('Fecha inválida');
+    const time=document.createElement('time');
+    time.dateTime=value;
+    time.textContent=new Intl.DateTimeFormat('es-EC',{timeZone:'America/Guayaquil',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).format(date);
+    target.replaceChildren('Última fecha de actualización: ',time,' (UTC−5)');
+    target.title='Último cambio del CSV de esta estación en GitHub. Hora de Ecuador continental.';
+  }catch{
+    target.textContent='Última fecha de actualización: no disponible';
+  }
+}
 function parse(text){return new Promise((resolve,reject)=>{
   const worker=new Worker(new URL('./csv-worker.js',import.meta.url),{type:'module'});
   worker.onmessage=({data})=>{worker.terminate();data.ok?resolve(data.data):reject(new Error(data.error));};
@@ -80,3 +99,4 @@ document.querySelectorAll('[data-days]').forEach(button=>button.onclick=()=>{
   range(start.toISOString().slice(0,19),end.toISOString().slice(0,19));
 });
 load();
+showLastUpdate();

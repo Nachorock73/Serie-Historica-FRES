@@ -17,6 +17,8 @@ El proceso comprueba los CSV, recalcula las tarjetas y publica la web en GitHub 
 
 Una pestaña que ya estaba abierta conserva los datos cargados: recárgala después de que termine la publicación. Si aparece información anterior, prueba una recarga completa con `Ctrl+F5` o `Cmd+Shift+R`.
 
+Al abrir una estación aparece **Última fecha de actualización**, en letra más pequeña. Corresponde al último cambio real de su CSV en el historial de GitHub, con fecha y hora de Ecuador continental (UTC−5). No es la fecha de apertura del gráfico ni la del despliegue general. Si se vuelve a subir un archivo idéntico o se crea un commit sin cambios en él, esta fecha se conserva.
+
 ## Archivos que debes subir
 
 Dentro de `merged`, mantener estos nombres exactos:
