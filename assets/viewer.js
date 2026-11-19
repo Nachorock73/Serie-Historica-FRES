@@ -47,7 +47,17 @@ async function load(){
   try{
     if(typeof Plotly==='undefined')throw new Error('No fue posible cargar Plotly. Vuelve a cargar la página.');
     const response=await fetch(new URL(`../merged/${code}_merged.csv`,import.meta.url),{cache:'no-store'});
+    if(response.status===404 && code==='J05'){
+      status.textContent='Sin información disponible';
+      graph.hidden=true;
+      document.getElementById('updated-at').hidden=true;
+      document.querySelector('a[download]').parentElement.hidden=true;
+      return;
+    }
     if(!response.ok)throw new Error(`No fue posible leer el CSV (HTTP ${response.status}).`);
+    graph.hidden=false;
+    document.getElementById('updated-at').hidden=false;
+    document.querySelector('a[download]').parentElement.hidden=false;
     const {dates,columns}=await parse(await response.text());
     if(!columns.length)throw new Error('No hay variables con observaciones.');
     bounds=[dates[0].slice(0,10),dates.at(-1).slice(0,10)];

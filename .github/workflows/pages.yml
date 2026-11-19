@@ -29,7 +29,8 @@ jobs:
           import fs from 'node:fs';
           const source=fs.readFileSync('assets/csv-worker.js','utf8');
           const {parseCsv}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
-          for(const code of ['A00','A01','A02','A04','A05','J04','P01']) {
+          for(const code of ['A00','A01','A02','A04','A05','J04','J05','P01']) {
+            if(code==='J05' && !fs.existsSync('merged/J05_merged.csv')){console.log('J05: Sin información disponible');continue;}
             const data=parseCsv(fs.readFileSync(`merged/${code}_merged.csv`,'utf8'));
             if(!data.columns.length)throw new Error(`${code}: no hay variables con datos.`);
             const forbidden={A01:['condfr'],A04:['temp']}[code]||[];
@@ -54,6 +55,9 @@ jobs:
           def card(match):
               code, heading = match.group(1), match.group(2)
               csv_path = f'merged/{code}_merged.csv'
+              if code == 'J05' and not (root / csv_path).is_file():
+                  updates[code] = {'updated_at': None, 'commit': None}
+                  return f'<a class="card" href="{code}.html"><h2>{heading}</h2><div class="card-details"><p class="period">Sin información disponible</p></div><span>Abrir gráfico</span></a>'
               updated_at = subprocess.check_output(['git','log','-1','--format=%cI','--',csv_path],text=True).strip()
               commit = subprocess.check_output(['git','log','-1','--format=%H','--',csv_path],text=True).strip()
               if not updated_at:
@@ -84,8 +88,8 @@ jobs:
               return f'<a class="card" href="{code}.html"><h2>{heading}</h2>{details}<span>Abrir gráfico</span></a>'
           pattern = r'<a class="card" href="([A-Z][0-9]{2})\.html"><h2>(.*?)</h2>.*?</a>'
           page, updated = re.subn(pattern, card, page, flags=re.S)
-          if updated != 7:
-              raise ValueError(f'Se esperaban siete tarjetas; encontradas: {updated}')
+          if updated != 8:
+              raise ValueError(f'Se esperaban ocho tarjetas; encontradas: {updated}')
           (root / 'index.html').write_text(page, encoding='utf-8')
           output = root / '_site'
           output.mkdir(exist_ok=True)
@@ -95,7 +99,7 @@ jobs:
               shutil.copytree(root / folder, output / folder, dirs_exist_ok=True)
           (output / 'assets/updates.json').write_text(json.dumps(updates,ensure_ascii=False,indent=2),encoding='utf-8')
           (output / '.nojekyll').touch()
-          print('Siete tarjetas actualizadas desde CSV.')
+          print('Ocho tarjetas actualizadas desde CSV.')
           PY
       - uses: actions/upload-pages-artifact@v4
         with:

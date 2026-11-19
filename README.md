@@ -2,7 +2,7 @@
 
 [Abrir los gráficos](https://nachorock73.github.io/Serie-Historica-FRES/)
 
-Visualización interactiva de las series de siete estaciones: A00, A01, A02, A04, A05, J04 y P01. La portada muestra el intervalo de fechas, las variables con datos y el número de registros de cada estación. Los gráficos permiten consultar valores, ampliar períodos y seleccionar fechas.
+Visualización interactiva de las series de A00, A01, A02, A04, A05, J04 y P01, con J05 · H5010 preparada para recibir datos. La portada muestra el intervalo de fechas, las variables con datos y el número de registros de cada estación. Los gráficos permiten consultar valores, ampliar períodos y seleccionar fechas.
 
 ## Actualizar los datos
 
@@ -13,7 +13,7 @@ Visualización interactiva de las series de siete estaciones: A00, A01, A02, A04
 
 **La publicación es automática después de guardar los cambios en `main`. No hace falta editar los HTML ni ejecutar otro programa.** Cambiar archivos solo en Google Drive o en el equipo no actualiza GitHub: hay que subir los CSV al repositorio.
 
-El proceso comprueba los CSV, recalcula las tarjetas y publica la web en GitHub Pages. Cada gráfico lee el CSV de su estación desde esa publicación. La portada se genera durante el despliegue para evitar descargar los siete CSV al entrar.
+El proceso comprueba los CSV, recalcula las tarjetas y publica la web en GitHub Pages. Cada gráfico lee el CSV de su estación desde esa publicación. La portada se genera durante el despliegue para evitar descargar los CSV al entrar.
 
 Una pestaña que ya estaba abierta conserva los datos cargados: recárgala después de que termine la publicación. Si aparece información anterior, prueba una recarga completa con `Ctrl+F5` o `Cmd+Shift+R`.
 
@@ -31,6 +31,7 @@ Dentro de `merged`, mantener estos nombres exactos:
 | A04 | `A04_merged.csv` |
 | A05 | `A05_merged.csv` |
 | J04 | `J04_merged.csv` |
+| J05 · H5010 | `J05_merged.csv` (cuando haya datos) |
 | P01 | `P01_merged.csv` |
 
 Este repositorio publica los datos ya consolidados. La unión de campañas, las correcciones y la validación científica se realizan antes, en el proyecto de estaciones. Los XLSX, las descargas originales y el notebook no son necesarios aquí.
@@ -55,7 +56,7 @@ En A04 se corrigieron también `Temp_DO` y `Temp_cond` del validado del 19 de en
 
 En A02, el validado del 19 de enero de 2026 contenía `Lvl` en psi y `Temp_Lvl` en °F. Se corrigieron a kPa y °C las 1.338 muestras comprendidas entre el 5 de enero a las 13:00 y el 19 de enero a las 11:15. Las columnas no estaban intercambiadas: las unidades se comprobaron en la descarga original `Level_02.csv`. La conversión se aplicó una sola vez en el validado, conservando las demás variables y los vacíos.
 
-Agregar una estación nueva requiere añadir su página y actualizar la configuración del visor y del despliegue. Para actualizar las siete estaciones actuales, basta con reemplazar sus CSV.
+J05 · H5010 muestra **Sin información disponible** mientras no exista `merged/J05_merged.csv`. Cuando se suba su primer CSV consolidado con el mismo formato que las demás estaciones, la publicación automática activará el gráfico, el intervalo de fechas, el número de variables y registros y la fecha de actualización. No hace falta editar el código ni subir un CSV vacío.
 
 ## Si una actualización falla
 
